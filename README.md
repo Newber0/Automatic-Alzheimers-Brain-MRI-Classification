@@ -32,7 +32,20 @@ The data was organized by date, patient, and preprocessing types. The naming con
 Each file contained all identifying information for that file including the file structure as well as a unique image ID. All files were renamed to include only the image ID. This was accomplished with the simple line of code below.
 
 ```
+import os
 
+filepath = '/Data_Directory/'
+# '/Data_Directory/' is wherever the data is stored.
+
+for f in os.listdir(filepath):
+    file_name, file_ext = os.path.splitext(f)
+    ADN, REDUNDANT, ID = file_name.split('I')
+
+    ID = ID.strip()
+    file_ext = file_ext.strip()
+
+    new_name = ('{}{}'.format(ID,file_ext))
+    os.rename((filepath + f), (filepath + new_name))
 ```
 
 # <a name="Brain_Extraction_using_ROBEX"></a>Brain Extraction using ROBEX and further Preprocessing
