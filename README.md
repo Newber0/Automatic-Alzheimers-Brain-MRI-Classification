@@ -8,9 +8,7 @@ All code associated with this project can be found in this repository separated 
 
 [Brain Extraction using ROBEX](#Brain_Extraction_using_ROBEX)
 
-[Registration to Template using ANTs](#Registration_to_Template_using_ANTs)
-
-[Segmentation into GM, WM, and CSF using ANTs](#Segmentation_into_GM,_WM,_and_CSF_using_ANTs)
+[Registration to Template and Segmentation into GM, WM, and CSF using ANTs](#Registration_to_Template_and_Segmentation_into_GM,_WM,_and_CSF_using_ANTs)
 
 [Separation of Data prior to CNN Entry](#Separation_of_Data_prior_to_CNN_Entry)
 
@@ -50,7 +48,13 @@ for f in os.listdir(filepath):
   os.rename((filepath + f), (filepath + new_name)) 
 )
 ```
-For example, this code renamed all files from something like ADNI_136_S_0579_MR_SmartBrain_br_raw_20080121170059746_1_S44769_I87960.nii to 87960.nii.
+For example, this code renamed all files from something like
+
+ADNI_136_S_0579_MR_SmartBrain_br_raw_20080121170059746_1_S44769_I87960.nii 
+
+to 
+
+87960.nii.
 
 All files contain two capital I characters, first as part of 'ADNI' and second preceeding the Image ID, therefore the filename is split by this and renaming is simple
 
@@ -66,18 +70,41 @@ for f in /ROBEX_InputData/* ; do
 ```
 This is not run using python for simplicities sake on our end. The UBC ARC Sockeye system was used for all computation of this project and compatibility issues dictate we do this.
 
-# <a name="Registration_to_Template_using_ANTs"></a>Registration to Template using ANTs
+# <a name="Registration_to_Template_and_Segmentation_into_GM,_WM,_and_CSF_using_ANTs"></a>Registration to Template and Segmentation into GM, WM, and CSF using ANTs using ANTs
 
 Registration of the image to normalised space was carried out using the ANTsPy package (Python Version of ANTs). Here is the [Documentation](https://antspy.readthedocs.io/en/latest/) and [GitHub download](https://github.com/ANTsX/ANTsPy) package. This is a multistage process requiring registration to a template using the various methods we are interested in, and segmentation of these images into grey matter (GM), white matter (WM), and Cerebrospinal Fluid (CSF). First we will focus on Registration.
 
-Registration methods that we tested include Translation, Affine, ElasticSyN, SyNRA, SyNAGGRo and TVMSQ. These methods range from least to most aggressive, roughly in this order. The code for each of these registrations can be found in this repository, however the difference is minimal for our purposes so SyNRA will be used as an Example here.
+Registration methods that we tested include Translation, Affine, ElasticSyN, SyNRA, SyNAGGRo and TVMSQ. These methods range from least to most aggressive, roughly in this order. The code for each of these registrations can be found in this repository, however the difference is minimal for our purposes so Affine will be used as an Example here. 
 
 ```
+import ants
+import os
 
+# this links the list of files when running the full dataset through
+link = '/ROBEX_Output/'
+
+# Skull stripped data output by ROBEX
+mylist = os.listdir('/ROBEX_Output/')
+
+# fixed image is the template to which the registration will be fitted found in the downloaded ANTs package
+fixed = ants.image_read('/ANTsPy-master/data/mni.nii.gz')
+
+# This runs the entire dataset through registration
+for i in mylist:
+  # registraction
+  moving = ants.image_read(link+i)
+  mytx = ants.registration(fixed=fixed, moving=moving, type_of_transform='Affine' )
+  mywarpedimage = ants.apply_transforms(fixed=fixed, moving=moving, transformlist=mytx['fwdtransforms'])
+  mywarpedimage.to_file('/Output_ants_Affine/reg_ants/'+i)
+  
+  #segmentation
+  mask=ants.get_mask(mywarpedimage)
+  img_seg = ants.atropos(a=mywarpedimage, m='[0.2,1x1x1]', c='[2,0]', i='kmeans[3]', x=mask)
+  gm =img_seg['probabilityimages'][1]
+  gm.to_file('/Output_ants_Affine/greymatter/'+i)
+  continue;
 ```
-
-
-# <a name="Segmentation_into_GM,_WM,_and_CSF_using_ANTs"></a>Segmentation into GM, WM, and CSF using ANTs
+This results in two outputs, the Raw Registered data, and the segmentation of that Raw data into GM, WM, and CSF
 
 # <a name="Separation_of_Data_prior_to_CNN_Entry"></a>Separation of Data prior to CNN Entry
 
