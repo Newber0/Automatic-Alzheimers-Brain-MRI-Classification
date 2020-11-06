@@ -35,7 +35,13 @@ Each file contained all identifying information for that file including the file
 
 ```
 
-# <a name="Brain_Extraction_using_ROBEX"></a>Brain Extraction using ROBEX
+# <a name="Brain_Extraction_using_ROBEX"></a>Brain Extraction using ROBEX and further Preprocessing
+
+The tool used for this step was the Robust Brain Extraction package was used which can be found [here](https://www.nitrc.org/projects/robex). This removes the tissue surrounding and including the skull. Isolating exclusively brain tissue in an effective manner dramatically increase the accuracy of the neural network. The code for this process can be found below.
+```
+
+```
+Next the images were reoriented to the standard position. This was accomplished using the fsl package found [here](https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/FSL), and the following code accomplishes this.
 
 # <a name="Registration_to_Template_using_ANTs"></a>Registration to Template using ANTs
 
