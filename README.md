@@ -4,29 +4,36 @@ All code associated with this project can be found in this repository separated 
 
 [Obtain data from ADNI Website](#Obtain_data_from_ADNI_Website)
 
-Obtain data from ADNI Website
-Process file structure to make it easier to manipulate dataset all at once
-Brain Extraction
-Registration to template
-Segmentation into GM, WM, and CSF
-Separation of data into AD, MCI, and CN
-Feeding into CNN
-Structure of output
+[Preprocessing of File Structure](#Preprocessing_of_File_Structure)
+
+[Brain Extraction using ROBEX](#Brain_Extraction_using_ROBEX)
+
+[Registration to Template using ANTs](#Registration_to_Template_using_ANTs)
+
+[Segmentation into GM, WM, and CSF using ANTs](#Segmentation_into_GM,_WM,_and_CSF_using_ANTs)
+
+[Separation of Data prior to CNN Entry](#Separation_of_Data_prior_to_CNN_Entry)
+
+[Construction of CNN](#Construction_of_CNN)
+
+[Summary of Output](#Summary_of_Output)
+
 
 # <a name="Obtain_data_from_ADNI_Website"></a>Obtain data from ADNI Website
+
 We obtained our data from the Alzheimer’s Disease Neuroimaging Initiative (ADNI) database. We selected T1 weighted 3T images including AD, MCI, and CN labelled data. Selected this data from all available sources. A CSV file and XLSX file containing all information for each image was provided upon download of the data. The data was downloaded from different sources, so these files were combined into a master excel file. 
 
-# Process file structure to make it easier to manipulate dataset all at once
+# <a name="Preprocessing_of_File_Structure"></a>Preprocessing of File Structure
 
-# Brain Extraction
+# <a name="Brain_Extraction_using_ROBEX"></a>Brain Extraction using ROBEX
 
-# Registration to template
+# <a name="Registration_to_Template_using_ANTs"></a>Registration to Template using ANTs
 
-# Segmentation into GM, WM, and CSF
+# <a name="Segmentation_into_GM,_WM,_and_CSF_using_ANTs"></a>Segmentation into GM, WM, and CSF using ANTs
 
-# Separation of data into AD, MCI, and CN
+# <a name="Separation_of_Data_prior_to_CNN_Entry"></a>Separation of Data prior to CNN Entry
 
-# Feeding into CNN
+# <a name="Construction_of_CNN"></a>Construction of CNN
 
-# Structure of output
+# <a name="Summary_of_Output"></a>Summary of Output
 
