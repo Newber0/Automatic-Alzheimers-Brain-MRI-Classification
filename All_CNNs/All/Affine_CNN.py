@@ -111,5 +111,3 @@ plt.savefig('/Affine/AffineAllLoss.pdf')
 print( "Training Loss is " + str(np.mean(CNN_history.history['loss'])))
 print( "Validation Loss is " + str(np.mean(CNN_history.history['val_loss'])))
 plt.clf()
-
-#model.save('/scratch/ex-rtam-1/Affine/AffineAllModel.h5')
