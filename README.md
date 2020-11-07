@@ -1,5 +1,7 @@
 # Overview of Methods, from Data Acquisition to Output of Trained Model
 
+The purpose of this project is to compare the effects of different methods of image registration, or spatial normalization, on the ability of a neural network to correctly classify 3D Brain MRI data as Alzhiemer's Disease (AD), Mild Cognitive Injury (MCI), or Control (CN). This project will make use of the Advanced Normalization Tool package, or [ANTs](https://antspy.readthedocs.io/en/latest/) the Robust Brain Extraction package, or [ROBEX](https://www.nitrc.org/projects/robex), and [Keras](https://keras.io/).
+
 All code associated with this project can be found in this repository separated by function, but this document will act as an overarching summary of all work completed. While the data will not be provided here, it can be acquired from the [ADNI Database](http://adni.loni.usc.edu/) with permission. Upon download of the data a CSV with identifying information for each image is also made avaliable. This can be found [here](https://github.com/Newber0/Automatic-Alzheimers-Brain-MRI-Classification/blob/main/Data_Index.csv) in the case of this project.
 
 [Obtain data from ADNI Website](#Obtain_data_from_ADNI_Website)
@@ -74,7 +76,7 @@ This is not run using python for simplicities sake on our end. The UBC ARC Socke
 
 Registration of the image to normalised space was carried out using the ANTsPy package (Python Version of ANTs). Here is the [Documentation](https://antspy.readthedocs.io/en/latest/) and [GitHub download](https://github.com/ANTsX/ANTsPy) package. This is a multistage process requiring registration to a template using the various methods we are interested in, and segmentation of these images into grey matter (GM), white matter (WM), and Cerebrospinal Fluid (CSF). First we will focus on Registration.
 
-Registration methods that we tested include Translation, Affine, ElasticSyN, SyNRA, SyNAGGRo and TVMSQ. These methods range from least to most aggressive, roughly in this order. The code for each of these registrations can be found in this repository, however the difference is minimal for our purposes so Affine will be used as an Example here. 
+Registration methods that we tested include Translation, Affine, ElasticSyN, SyNRA, and SyNAggro. These methods range from least to most aggressive, roughly in this order. The code for each of these registrations can be found in this repository, however the difference is minimal for our purposes so Affine will be used as an Example here. 
 
 ```
 import ants
@@ -104,9 +106,15 @@ for i in mylist:
   gm.to_file('/Output_ants_Affine/greymatter/'+i)
   continue;
 ```
-This results in two outputs, the Raw Registered data, and the segmentation of that Raw data into GM, WM, and CSF
+This results in two outputs, the Raw Registered data, and the segmentation of that Raw data into GM, WM, and CSF. The literature states that grey matter presents signs of MCI and AD therefore we are only interested in the GM mask as an output, the other two are unnecessary.
 
 # <a name="Separation_of_Data_prior_to_CNN_Entry"></a>Separation of Data prior to CNN Entry
+
+The original scope of this project was to classify MRI data as either AD or CN, but when the data was downloaded there was a high rate of images with MCI and the decision to include this class was made. This complicated the process because binary classification is far easier than multiclass classification. As a result we decided to run multiple networks for each registration method, 3 binary networks, (comparing AD to CN, MCI to CN, and AD to MCI) and one multiclass network (AD vs CN vs MCI). Before building the network, the data was split into 3 files containing AD, MCI, and CN respectively, and then from these files, copies were taken to create the following 4 files; ADvsCN, MCIvsCN, ADvsMCI, and ADvsMCIvsCN. Each network could then sample from the correct file instead of having to parse through the full set for each network. Additionally, to ensure consistency, 100 samples from each class were taken. Below is the code that achieved this.
+
+```
+
+```
 
 # <a name="Construction_of_CNN"></a>Construction of CNN
 
