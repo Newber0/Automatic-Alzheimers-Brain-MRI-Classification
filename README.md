@@ -188,8 +188,248 @@ It is important to note that the purpose of this project is to compare registrat
 We chose to construct one network for each comparison, for each registration method, meaning 5 times 4 networks for a total of 20 networks. All draw from different sources and output to different source, but the general code is the same. The exception are the multiclass networks, which had to be changed to accept multiple classes. Here we will show the ADvsCN and ADvsCNvsMCI networks for the Affine registration method, but all other networks can be found in this repository as well. Here we utilize the Keras package found [here](https://keras.io/). 
 
 ```
+#Affine Data ADvsCN CNN
+# Importing packages
+import numpy as np
+import os
+import tensorflow as tf
+import pandas as pd
+
+import matplotlib.pyplot as plt
+import SimpleITK as sitk
+
+from sklearn.preprocessing import LabelEncoder
+from sklearn.model_selection import train_test_split
+
+from tensorflow.keras.utils import plot_model
+from tensorflow.keras.utils import to_categorical
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense
+from tensorflow.keras.layers import Dropout
+
+# Setting up Datapaths and CSV file
+datapath = ('/Output_ants_Affine/DataSamples/ADvsCN/')
+patients = os.listdir(datapath)
+labels_df = pd.read_csv('/Data_Index/Data_Index.csv', index_col = 0 )
+
+# Setting up Label data for intry into CNN
+labelset = []
+
+for i in patients:
+  label = labels_df.loc[i, 'Group']
+  if label == 'AD':  # use `==` instead of `is` to compare strings
+    labelset.append(0.)
+  elif label == 'CN':
+    labelset.append(1.)
+  else:
+      raise "Oops, unknown label" 
+
+labelset = tuple(labelset)
+labelset = np.array(labelset)
+
+# Setting up dataseet for entry to CNN
+FullDataSet = []
+
+# Important to note that here a dummy dimension is added to make the data compatible with the 3D CNN architecture
+for patient in patients:
+  a = sitk.ReadImage(datapath + patient)
+  b = sitk.GetArrayFromImage(a)
+  c = np.reshape(b, (182, 218, 182, 1))
+  FullDataSet.append(c)
+
+FullDataSet = np.array(FullDataSet)
+
+#splitting training and testing data
+X_train, X_valid, y_train, y_valid = train_test_split(FullDataSet, labelset, train_size=0.80, random_state=42 )
+
+## 3D CNN Architecture
+CNN_model = tf.keras.Sequential(
+  [
+      #tf.keras.layers.Reshape([189, 233, 197, 1], input_shape=[189, 233, 197]), 
+      tf.keras.layers.Input(shape =( 182, 218, 182, 1) ),                       
+      tf.keras.layers.Conv3D(kernel_size=(7, 7, 7), filters=32, activation='relu',
+                          padding='same', strides=(3, 3, 3)),
+      #tf.keras.layers.BatchNormalization(),
+      tf.keras.layers.MaxPool3D(pool_size=(3, 3, 3), padding='same'),
+      tf.keras.layers.Dropout(0.20),
+      
+      tf.keras.layers.Conv3D(kernel_size=(5, 5, 5), filters=64, activation='relu',
+                          padding='same', strides=(3, 3, 3)),
+      #tf.keras.layers.BatchNormalization(),
+      tf.keras.layers.MaxPool3D(pool_size=(2, 2, 2), padding='same'),
+      tf.keras.layers.Dropout(0.20),
+
+      tf.keras.layers.Conv3D(kernel_size=(3, 3, 3), filters=128, activation='relu',
+                          padding='same', strides=(1, 1, 1)),
+      #tf.keras.layers.BatchNormalization(),
+      tf.keras.layers.MaxPool3D(pool_size=(2, 2, 2), padding='same'),
+      tf.keras.layers.Dropout(0.20), 
+
+      # Because this is a binary classification we use a sigmoid activation to the final layer, and the final layer is a single node 
+      tf.keras.layers.Flatten(),
+      tf.keras.layers.Dense(256, activation='relu'),   
+      tf.keras.layers.Dense(64, activation='relu'),
+      tf.keras.layers.Dropout(0.20),
+      tf.keras.layers.Dense(1, activation='sigmoid')
+  ])
+
+# Compile the model, compiled with binary crossentropy due to binary classification
+CNN_model.compile(optimizer=tf.keras.optimizers.Adam(lr=0.0001), loss='binary_crossentropy', metrics=['accuracy'])
+
+# print model layers
+CNN_model.summary()
+
+CNN_history = CNN_model.fit(X_train, y_train, epochs=300, validation_data=( X_valid, y_valid ))
+
+#ploting all the results
+plt.plot(CNN_history.history['accuracy'])
+plt.plot(CNN_history.history['val_accuracy'])
+plt.title('Model accuracy')
+plt.ylabel('Accuracy')
+plt.xlabel('Epoch')
+plt.legend(['Train', 'Test'], loc='upper left')
+plt.savefig('/Affine/AffineADvsCNAcc2.pdf')
+print( "Training Accuracy is " + str(np.mean(CNN_history.history['accuracy'])))
+print( "Validation Accuracy is " + str(np.mean(CNN_history.history['val_accuracy'])))
+plt.clf()
+
+# Plot training & validation loss values
+plt.plot(CNN_history.history['loss'])
+plt.plot(CNN_history.history['val_loss'])
+plt.title('Model loss')
+plt.ylabel('Loss')
+plt.xlabel('Epoch')
+plt.legend(['Train', 'Test'], loc='upper left')
+plt.savefig('/Affine/AffineADvsCNLoss2.pdf')
+print( "Training Loss is " + str(np.mean(CNN_history.history['loss'])))
+print( "Validation Loss is " + str(np.mean(CNN_history.history['val_loss'])))
+plt.clf()
 
 ```
+Next is the network classifying one of all three classes. The only major changes are the introduction of an additional label, the changing of the final layer to have 3 Nodes and a softmax activation function, and a loss function of categorical crossentropy.
 
+```
+#Affine Data ADvsCNvsMCI CNN
+
+#importing of packages
+import numpy as np
+import os
+import tensorflow as tf
+import pandas as pd
+
+import matplotlib.pyplot as plt
+import SimpleITK as sitk
+
+from sklearn.preprocessing import LabelEncoder
+from sklearn.model_selection import train_test_split
+
+from tensorflow.keras.utils import plot_model
+from tensorflow.keras.utils import to_categorical
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense
+from tensorflow.keras.layers import Dropout
+
+# Setting up datapaths
+datapath = ('/Output_ants_Affine/DataSamples/All/')
+patients = os.listdir(datapath)
+labels_df = pd.read_csv('/Data_Index/Data_Index.csv', index_col = 0 )
+
+Setting up label data
+labelset = []
+
+# Here is a change compared to the binary model, 3 classes not 2
+for i in patients:
+  label = labels_df.loc[i, 'Group']
+  if label == 'AD':  # use `==` instead of `is` to compare strings
+    labelset.append(0.)
+  elif label == 'CN':
+    labelset.append(1.)
+  elif label == 'MCI':
+    labelset.append(2.)
+  else:
+      raise "Oops, unknown label" 
+
+labelset = to_categorical(labelset)
+
+#setting up the dataset, including dummy dimension as previously mentioned
+FullDataSet = []
+
+for patient in patients:
+  a = sitk.ReadImage(datapath + patient)
+  b = sitk.GetArrayFromImage(a)
+  c = np.reshape(b, (182, 218, 182, 1))
+  FullDataSet.append(c)
+
+FullDataSet = np.array(FullDataSet)
+
+#splitting into training and testing
+X_train, X_valid, y_train, y_valid = train_test_split(FullDataSet, labelset, train_size=0.80, random_state=42 )
+
+## 3D CNN architecture
+CNN_model = tf.keras.Sequential(
+  [
+      #tf.keras.layers.Reshape([189, 233, 197, 1], input_shape=[189, 233, 197]), 
+      tf.keras.layers.Input(shape =( 182, 218, 182, 1) ),                       
+      tf.keras.layers.Conv3D(kernel_size=(7, 7, 7), filters=32, activation='relu',
+                          padding='same', strides=(3, 3, 3)),
+      #tf.keras.layers.BatchNormalization(),
+      tf.keras.layers.MaxPool3D(pool_size=(3, 3, 3), padding='same'),
+      tf.keras.layers.Dropout(0.20),
+      
+      tf.keras.layers.Conv3D(kernel_size=(5, 5, 5), filters=64, activation='relu',
+                          padding='same', strides=(3, 3, 3)),
+      #tf.keras.layers.BatchNormalization(),
+      tf.keras.layers.MaxPool3D(pool_size=(2, 2, 2), padding='same'),
+      tf.keras.layers.Dropout(0.20),
+
+      tf.keras.layers.Conv3D(kernel_size=(3, 3, 3), filters=128, activation='relu',
+                          padding='same', strides=(1, 1, 1)),
+      #tf.keras.layers.BatchNormalization(),
+      tf.keras.layers.MaxPool3D(pool_size=(2, 2, 2), padding='same'),
+      tf.keras.layers.Dropout(0.20), 
+
+      # last activation could be either sigmoid or softmax, need to look into this more. Sig for binary output, Soft for multi output 
+      tf.keras.layers.Flatten(),
+      tf.keras.layers.Dense(256, activation='relu'),   
+      tf.keras.layers.Dense(64, activation='relu'),
+      tf.keras.layers.Dropout(0.20),
+      tf.keras.layers.Dense(3, activation='softmax')
+  ])
+
+# Compile the model
+CNN_model.compile(optimizer=tf.keras.optimizers.Adam(lr=0.0001), loss='categorical_crossentropy', metrics=['accuracy'])
+
+# print model layers
+CNN_model.summary()
+
+CNN_history = CNN_model.fit(X_train, y_train, epochs=300, validation_data=( X_valid, y_valid ))
+
+#ploting all the results
+plt.plot(CNN_history.history['accuracy'])
+plt.plot(CNN_history.history['val_accuracy'])
+plt.title('Model accuracy')
+plt.ylabel('Accuracy')
+plt.xlabel('Epoch')
+plt.legend(['Train', 'Test'], loc='upper left')
+plt.savefig('/Affine/AffineAllAcc.pdf')
+print( "Training Accuracy is " + str(np.mean(CNN_history.history['accuracy'])))
+print( "Validation Accuracy is " + str(np.mean(CNN_history.history['val_accuracy'])))
+plt.clf()
+
+# Plot training & validation loss values
+plt.plot(CNN_history.history['loss'])
+plt.plot(CNN_history.history['val_loss'])
+plt.title('Model loss')
+plt.ylabel('Loss')
+plt.xlabel('Epoch')
+plt.legend(['Train', 'Test'], loc='upper left')
+plt.savefig('/Affine/AffineAllLoss.pdf')
+print( "Training Loss is " + str(np.mean(CNN_history.history['loss'])))
+print( "Validation Loss is " + str(np.mean(CNN_history.history['val_loss'])))
+plt.clf()
+```
+Batch Normalization was found to be ineffective, but was kept in the code for transparency.
+
+All CNNs were run and the results are discussed below.
 # <a name="Summary_of_Output"></a>Summary of Output
 
