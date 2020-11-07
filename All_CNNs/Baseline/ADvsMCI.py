@@ -1,11 +1,9 @@
 #Baseline ADvsMCI Data
 
 import numpy as np
-import glob
 import os
 import tensorflow as tf
 import pandas as pd
-import glob
 
 import matplotlib.pyplot as plt
 import SimpleITK as sitk
@@ -19,10 +17,11 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.layers import Dropout
 
-datapath = ('/scratch/ex-rtam-1/original/ADvsMCI/')
+datapath = ('/BaselineData/ADvsMCI/')
 patients = os.listdir(datapath)
-labels_df = pd.read_csv('/arc/project/ex-rtam-1/Data_Index/Data_Index.csv', index_col = 0 )
+labels_df = pd.read_csv('/Data_Index.csv', index_col = 0 )
 
+# Setting up Label data for entry into CNN
 labelset = []
 
 for i in patients:
@@ -37,9 +36,9 @@ for i in patients:
 labelset = tuple(labelset)
 labelset = np.array(labelset)
 
-
+# Setting up Full Dataset for entry into CNN
 FullDataSet = []
-
+# Important to not that dummy dimension inserted for compatability
 for patient in patients:
   a = sitk.ReadImage(datapath + patient)
   b = sitk.GetArrayFromImage(a)
@@ -48,6 +47,7 @@ for patient in patients:
 
 FullDataSet = np.array(FullDataSet)
 
+# Separating into training and testing
 X_train, X_valid, y_train, y_valid = train_test_split(FullDataSet, labelset, train_size=0.80, random_state=42 )
 
 ## 3D CNN
@@ -96,7 +96,7 @@ plt.title('Model accuracy')
 plt.ylabel('Accuracy')
 plt.xlabel('Epoch')
 plt.legend(['Train', 'Test'], loc='upper left')
-plt.savefig('/scratch/ex-rtam-1/Baseline/BaselineADvsMCIAcc.pdf')
+plt.savefig('/Baseline/BaselineADvsMCIAcc.pdf')
 print( "Training Accuracy is " + str(np.mean(CNN_history.history['accuracy'])))
 print( "Validation Accuracy is " + str(np.mean(CNN_history.history['val_accuracy'])))
 plt.clf()
@@ -108,7 +108,7 @@ plt.title('Model loss')
 plt.ylabel('Loss')
 plt.xlabel('Epoch')
 plt.legend(['Train', 'Test'], loc='upper left')
-plt.savefig('/scratch/ex-rtam-1/Baseline/BaselineADvsMCILoss.pdf')
+plt.savefig('/Baseline/BaselineADvsMCILoss.pdf')
 print( "Training Loss is " + str(np.mean(CNN_history.history['loss'])))
 print( "Validation Loss is " + str(np.mean(CNN_history.history['val_loss'])))
 plt.clf()
