@@ -28,13 +28,13 @@ CN = [str(i) for i in CN]
 
 ## Move files into appropriate directory for sorting
 for i in AD:
-  shutil.move('/Output_ants_SyNAggro/greymatter/' + i + '.nii', '/Output_ants_SyNAggro/AD/')
+  shutil.move('/Output_ants_SyNAggro/Greymatter/' + i + '.nii', '/Output_ants_SyNAggro/AD/')
   continue;
 
 for i in CN:
-  shutil.move('/Output_ants_SyNAggro/greymatter/' + i + '.nii', '/Output_ants_SyNAggro/CN/')
+  shutil.move('/Output_ants_SyNAggro/Greymatter/' + i + '.nii', '/Output_ants_SyNAggro/CN/')
   continue;
 
 for i in MCI:
-  shutil.move('/Output_ants_SyNAggro/greymatter/' + i + '.nii', '/Output_ants_SyNAggro/MCI/')
+  shutil.move('/Output_ants_SyNAggro/Greymatter/' + i + '.nii', '/Output_ants_SyNAggro/MCI/')
   continue;
