@@ -1,11 +1,9 @@
 #Baseline ADvsCN Data
 
 import numpy as np
-import glob
 import os
 import tensorflow as tf
 import pandas as pd
-import glob
 
 import matplotlib.pyplot as plt
 import SimpleITK as sitk
@@ -19,9 +17,9 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.layers import Dropout
 
-datapath = ('/scratch/ex-rtam-1/original/ADvsCN/')
+datapath = ('BaselineData/ADvsCN/')
 patients = os.listdir(datapath)
-labels_df = pd.read_csv('/arc/project/ex-rtam-1/Data_Index/Data_Index.csv', index_col = 0 )
+labels_df = pd.read_csv('/Data_Index.csv', index_col = 0 )
 
 labelset = []
 
@@ -96,7 +94,7 @@ plt.title('Model accuracy')
 plt.ylabel('Accuracy')
 plt.xlabel('Epoch')
 plt.legend(['Train', 'Test'], loc='upper left')
-plt.savefig('/scratch/ex-rtam-1/Baseline/BaselineADvsCNAcc.pdf')
+plt.savefig('/Baseline/BaselineADvsCNAcc.pdf')
 print( "Training Accuracy is " + str(np.mean(CNN_history.history['accuracy'])))
 print( "Validation Accuracy is " + str(np.mean(CNN_history.history['val_accuracy'])))
 plt.clf()
@@ -108,7 +106,7 @@ plt.title('Model loss')
 plt.ylabel('Loss')
 plt.xlabel('Epoch')
 plt.legend(['Train', 'Test'], loc='upper left')
-plt.savefig('/scratch/ex-rtam-1/Baseline/BaselineADvsCNLoss.pdf')
+plt.savefig('/Baseline/BaselineADvsCNLoss.pdf')
 print( "Training Loss is " + str(np.mean(CNN_history.history['loss'])))
 print( "Validation Loss is " + str(np.mean(CNN_history.history['val_loss'])))
 plt.clf()
