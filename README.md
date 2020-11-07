@@ -110,11 +110,74 @@ This results in two outputs, the Raw Registered data, and the segmentation of th
 
 # <a name="Separation_of_Data_prior_to_CNN_Entry"></a>Separation of Data prior to CNN Entry
 
-The original scope of this project was to classify MRI data as either AD or CN, but when the data was downloaded there was a high rate of images with MCI and the decision to include this class was made. This complicated the process because binary classification is far easier than multiclass classification. As a result we decided to run multiple networks for each registration method, 3 binary networks, (comparing AD to CN, MCI to CN, and AD to MCI) and one multiclass network (AD vs CN vs MCI). Before building the network, the data was split into 3 files containing AD, MCI, and CN respectively, and then from these files, copies were taken to create the following 4 files; ADvsCN, MCIvsCN, ADvsMCI, and ADvsMCIvsCN. Each network could then sample from the correct file instead of having to parse through the full set for each network. Additionally, to ensure consistency, 100 samples from each class were taken. Below is the code that achieved this.
+The original scope of this project was to classify MRI data as either AD or CN, but when the data was downloaded there was a high rate of images with MCI and the decision to include this class was made. This complicated the process because binary classification is far easier than multiclass classification. As a result we decided to run multiple networks for each registration method, 3 binary networks, (comparing AD to CN, MCI to CN, and AD to MCI) and one multiclass network (AD vs CN vs MCI). Before building the network, the data was split into 3 files containing AD, MCI, and CN respectively, and then from these files, copies were taken to create the following 4 files; ADvsCN, MCIvsCN, ADvsMCI, and ADvsMCIvsCN. Each network could then sample from the correct file instead of having to parse through the full set for each network. Additionally, to ensure consistency, 100 samples from each class were taken. Below is an example of the code for Affine that achieved this.
 
 ```
+import os
+import numpy as np
+import pandas as pd
+import glob
+import shutil
+
+# CSV file will be used to match image ID to one of the three labels
+index = '/Data_Index.csv'
+df = pd.read_excel(index)
+
+# identifying Image ID for AD
+AD = df[(df.Group == 'AD')]
+AD = (AD['Image Data ID'])
+AD = list(AD)
+AD = [str(i) for i in AD]
+
+# identifying Image ID for MCI
+MCI = df[(df.Group == 'MCI') ]
+MCI = (MCI['Image Data ID'])
+MCI = list(MCI)
+MCI = [str(i) for i in MCI]
+
+# identifying Image ID for CN
+CN = df[(df.Group == 'CN')]
+CN = (CN['Image Data ID'])
+CN = list(CN)
+CN = [str(i) for i in CN]
+
+## Move files into appropriate directory for sorting
+for i in AD:
+  shutil.move('/Output_ants_Affine/Greymatter/' + i + '.nii', '/Output_ants_Affine/AD/')
+  continue;
+
+for i in CN:
+  shutil.move('/Output_ants_Affine/Greymatter/' + i + '.nii', '/Output_ants_Affine/CN/')
+  continue;
+
+for i in MCI:
+  shutil.move('/Output_ants_Affine/Greymatter/' + i + '.nii', '/Output_ants_Affine/MCI/')
+  continue;
+```
+This sorts all available Affine greymatter files into three files, AD, MCI, and CN. Next 100 samples from each are taken and placed into the files that will be used for training and testing the networks. These include ADvsCN, MCIvsCN, and ADvsMCIvsCN.
 
 ```
+# Moving AD files
+cd /Output_ants_Affine/AD/
+find . -maxdepth 1 -type f | head -100 | xargs cp -t /Output_ants_Affine/DataSamples/ADvsCN/
+find . -maxdepth 1 -type f | head -100 | xargs cp -t /Output_ants_Affine/DataSamples/ADvsMCI/
+find . -maxdepth 1 -type f | head -100 | xargs cp -t /Output_ants_Affine/DataSamples/ADvsMCIvsCN/
+
+# Moving CN files
+cd /Output_ants_Affine/CN/
+find . -maxdepth 1 -type f | head -100 | xargs cp -t /Output_ants_Affine/DataSamples/ADvsCN/
+find . -maxdepth 1 -type f | head -100 | xargs cp -t /Output_ants_Affine/DataSamples/MCIvsCN/
+find . -maxdepth 1 -type f | head -100 | xargs cp -t /Output_ants_Affine/DataSamples/ADvsMCIvsCN/
+
+#Moving MCI files
+cd /Output_ants_Affine/MCI/
+find . -maxdepth 1 -type f | head -100 | xargs cp -t /Output_ants_Affine/DataSamples/ADvsMCI/
+find . -maxdepth 1 -type f | head -100 | xargs cp -t /Output_ants_Affine/DataSamples/MCIvsCN/
+find . -maxdepth 1 -type f | head -100 | xargs cp -t /Output_ants_Affine/DataSamples/ADvsMCIvsCN/
+```
+The above code is a shell script used for the copying of the files without removing the source files so that the same files can be used in multiple comparisons.
+
+Next is the construction and implementation of the neural network. In this case a Convolutional Neural Network.
 
 # <a name="Construction_of_CNN"></a>Construction of CNN
 
