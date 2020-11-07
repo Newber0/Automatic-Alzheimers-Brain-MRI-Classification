@@ -181,5 +181,8 @@ Next is the construction and implementation of the neural network. In this case 
 
 # <a name="Construction_of_CNN"></a>Construction of CNN
 
+We chose to construct a 3D CNN as this is suited to both the features we wish to identify and the data we have. 3D MRI data is made up of multiple slices of 2D data which can be interpreted as 3d data. As the features that are characteristic of AD and MCI will be found across multiple slices it is important that the kernels be 3D as well. Typically with machine vision, a 3d image is 4 dimensional, 3 spatial dimensions and one colour channel dimension. An RGB image has three colour channels, therefore an RGB image that is 5 by 10 by 15 pixels would have a dimensionality of 5,10,15,3. In the case of a binary image there is no colour channel dimension, therefore a dummy dimension has to be added in order for successful input into a 3D CNN. Here we utilize the Keras package found [here](https://keras.io/)
+
+
 # <a name="Summary_of_Output"></a>Summary of Output
 
