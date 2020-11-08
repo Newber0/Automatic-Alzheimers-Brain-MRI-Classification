@@ -185,7 +185,7 @@ We chose to construct a 3D CNN as this is suited to both the features we wish to
 
 It is important to note that the purpose of this project is to compare registration methods, therefore no major fine tuning of the network took place, and a rather simplistic network was used to accentuate the differences.
 
-We chose to construct one network for each comparison, for each registration method, meaning 5 times 4 networks for a total of 20 networks. All draw from different sources and output to different source, but the general code is the same. The exception are the multiclass networks, which had to be changed to accept multiple classes. Here we will show the ADvsCN and ADvsCNvsMCI networks for the Affine registration method, but all other networks can be found in this repository as well. Here we utilize the Keras package found [here](https://keras.io/). 
+We chose to construct one network for each comparison, for each registration method, meaning 5 times 4 networks for a total of 20 networks. All draw from different sources and output to different source, but the general code is the same. The exception are the multiclass networks, which had to be changed to accept multiple classes. Here we will show the ADvsCN and ADvsCNvsMCI networks for the Affine registration method, but all other networks can be found in this repository as well. Here we utilize the Keras package found [here](https://keras.io/). Also note that an additional model with unregistered data was used as well. This would act as a baseline.
 
 ```
 #Affine Data ADvsCN CNN
@@ -433,3 +433,85 @@ Batch Normalization was found to be ineffective, but was kept in the code for tr
 All CNNs were run and the results are discussed below.
 # <a name="Summary_of_Output"></a>Summary of Output
 
+Registration had a significant positive effect on the ability of a CNN to classify 3D Brain MRI data as AD, MCI, or CN. Model accuracy and loss were used as metrics too determine success for all models. Graphs displaying this information can be found in this repository [here](). Between the different classifications, the highest accuracy and lowest loss was achieved by ADvsCN, followed by ADvsMCI. MCIvsCN performed poorly and ADvsMCIvsCN performed the worst. Below the results for Affine registration associated with these methods are shown.
+
+ADvsCN Affine Accuracy
+
+<img src="https://github.com/Newber0/Automatic-Alzheimers-Brain-MRI-Classification/blob/main/CNN_Results/ADvsCN/Affine/AffineADvsCNAcc2-1.jpg" width="40%"> 
+
+ADvsCN Affine Loss
+
+<img src="https://github.com/Newber0/Automatic-Alzheimers-Brain-MRI-Classification/blob/main/CNN_Results/ADvsCN/Affine/AffineADvsCNLoss2-1.jpg" width="40%">
+
+ADvsMCI Affine Accuracy
+
+<img src="https://github.com/Newber0/Automatic-Alzheimers-Brain-MRI-Classification/blob/main/CNN_Results/ADvsMCI/Affine/AffineADvsMCIAcc-1.jpg" width="40%">
+
+ADvsMCI Affine Loss
+
+<img src="https://github.com/Newber0/Automatic-Alzheimers-Brain-MRI-Classification/blob/main/CNN_Results/ADvsMCI/Affine/AffineADvsMCILoss-1.jpg" width="40%">
+
+MCIvsCN Affine Accuracy
+
+<img src="https://github.com/Newber0/Automatic-Alzheimers-Brain-MRI-Classification/blob/main/CNN_Results/MCIvsCN/Affine/AffineMCIvsCNAcc-1.jpg" width="40%"> 
+
+MCIvsCN Affine Loss
+
+<img src="https://github.com/Newber0/Automatic-Alzheimers-Brain-MRI-Classification/blob/main/CNN_Results/MCIvsCN/Affine/AffineMCIvsCNLoss-1.jpg" width="40%">
+
+ADvsMCIvsCN Affine Accuracy
+
+<img src="https://github.com/Newber0/Automatic-Alzheimers-Brain-MRI-Classification/blob/main/CNN_Results/All/Affine/AffineAllAcc-1.jpg" width="40%">
+
+ADvsMCIvsCN Affine Loss
+
+<img src="https://github.com/Newber0/Automatic-Alzheimers-Brain-MRI-Classification/blob/main/CNN_Results/All/Affine/AffineAllLoss-1.jpg" width="40%">
+
+
+It is possible that signs of AD are strong enough that the network can accurately identify these features. This would explain why the ADvsCN and ADvsMCI models work well but the MCIvsCN does not. The multiclass model performing poorly was expected, as the architecture was not tuned for such a model. From this point only the ADvsCN information will be shown when comparing different registration methods.
+
+The less aggressive methods, Translation and Affine show the worst results:
+
+ADvsCN Translation Accuracy
+
+<img src="https://github.com/Newber0/Automatic-Alzheimers-Brain-MRI-Classification/blob/main/CNN_Results/All/Affine/AffineAllAcc-1.jpg" width="40%">
+
+ADvsCN Translation Loss
+
+<img src="https://github.com/Newber0/Automatic-Alzheimers-Brain-MRI-Classification/blob/main/CNN_Results/All/Affine/AffineAllLoss-1.jpg" width="40%">
+
+ADvsCN Affine Accuracy
+
+<img src="https://github.com/Newber0/Automatic-Alzheimers-Brain-MRI-Classification/blob/main/CNN_Results/ADvsCN/Affine/AffineADvsCNAcc2-1.jpg" width="40%">
+
+ADvsCN Affine Loss
+
+<img src="https://github.com/Newber0/Automatic-Alzheimers-Brain-MRI-Classification/blob/main/CNN_Results/ADvsCN/Affine/AffineADvsCNLoss2-1.jpg" width="40%">
+
+The more agressive models showed better success with the most successful being SyNRA. Note that the most aggressive model, SyNAggro was not as effective, meaning the features of interest were normalized to the point of being unrecognizable.
+
+ADvsCN ElasticSyN Accuracy
+
+<img src="https://github.com/Newber0/Automatic-Alzheimers-Brain-MRI-Classification/blob/main/CNN_Results/ADvsCN/SyNElastic/ElasticSyNADvsCNAcc2-1.jpg" width="40%">
+
+ADvsCN ElasticSyN Loss
+
+<img src="https://github.com/Newber0/Automatic-Alzheimers-Brain-MRI-Classification/blob/main/CNN_Results/ADvsCN/SyNElastic/ElasticSyNADvsCNLoss2-1.jpg" width="40%">
+
+ADvsCN SyNRA Accuracy
+
+<img src="https://github.com/Newber0/Automatic-Alzheimers-Brain-MRI-Classification/blob/main/CNN_Results/ADvsCN/SynRA/SyNRAADvsCNAcc2-1.jpg" width="40%">
+
+ADvsCN SyNRA Loss
+
+<img src="https://github.com/Newber0/Automatic-Alzheimers-Brain-MRI-Classification/blob/main/CNN_Results/ADvsCN/SynRA/SyNRAADvsCNLoss2-1.jpg" width="40%">
+
+ADvsCN SyNAggro Accuracy
+
+<img src="https://github.com/Newber0/Automatic-Alzheimers-Brain-MRI-Classification/blob/main/CNN_Results/ADvsCN/SyNAggro/SyNAggroADvsCNAcc2-1.jpg" width="40%">
+
+ADvsCN SyNAggro Loss
+
+<img src="https://github.com/Newber0/Automatic-Alzheimers-Brain-MRI-Classification/blob/main/CNN_Results/ADvsCN/SyNAggro/SyNAggroADvsCNLoss2-1.jpg" width="40%">
+
+While is difficult to visually see the difference between these last three methods, based on average accuracy and loss over train time, SyNRA produces the best results. In addition. While no models achieved particularly low losses, this provides an effective look into the difference between registration methods an their effect in training a neural network
