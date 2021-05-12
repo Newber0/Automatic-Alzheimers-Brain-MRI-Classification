@@ -72,7 +72,7 @@ for f in /ROBEX_InputData/* ; do
 ```
 This is not run using python for simplicities sake on our end. The UBC ARC Sockeye system was used for all computation of this project and compatibility issues dictate we do this.
 
-# <a name="Registration_to_Template_and_Segmentation_into_GM,_WM,_and_CSF_using_ANTs"></a>Registration to Template and Segmentation into GM, WM, and CSF using ANTs using ANTs
+# <a name="Registration_to_Template_and_Segmentation_into_GM,_WM,_and_CSF_using_ANTs"></a>Registration to Template and Segmentation into GM, WM, and CSF using ANTs
 
 Registration of the image to normalised space was carried out using the ANTsPy package (Python Version of ANTs). Here is the [Documentation](https://antspy.readthedocs.io/en/latest/) and [GitHub download](https://github.com/ANTsX/ANTsPy) package. This is a multistage process requiring registration to a template using the various methods we are interested in, and segmentation of these images into grey matter (GM), white matter (WM), and Cerebrospinal Fluid (CSF). First we will focus on Registration.
 
